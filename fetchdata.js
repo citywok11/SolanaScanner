@@ -17,7 +17,7 @@ async function fetchData(uri, mintId) {
 
         console.log(json)
 
-        //if (twitter && url && symbol && name) {
+        if (twitter && url && symbol && name) {
             // All properties are neither null nor undefined
             const metadata = {
                 name : name,
@@ -27,7 +27,7 @@ async function fetchData(uri, mintId) {
                 telegram: telegram,
                 url: url
             }
-          //  };
+            };
 
             return metadata
 

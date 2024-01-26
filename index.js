@@ -50,10 +50,17 @@ for (const mintId of mintIds) {
         console.log(`No URI found for mintId: ${mintId}`);
         continue; // Skip to the next iteration if no URI is returned
       }
+      else {
+        const metaData = await fetchData(uri, mintId)
+      }
 
-      const metaData = await fetchData(uri, mintId)
-      await sendToDiscordWebhook(metaData)
-
+      if (!metaData) {
+        console.log(`No metadata found for mintId: ${mintId}`);
+        continue; // Skip to the next iteration if no URI is returned
+      }
+      else {
+        await sendToDiscordWebhook(metaData)
+      }
 
   } catch (error) {
       console.error("Error fetching metadata for", mintId, ":", error);
