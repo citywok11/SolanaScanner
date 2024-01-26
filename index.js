@@ -36,11 +36,21 @@ for (const mintId of mintIds) {
         console.log(`Skipping duplicate mintId: ${mintId}`);
         continue; // Skip processing if the ID has already been processed
       }
+      if (!mintId) {
+        console.log("Skipping null or undefined mintId");
+        continue; // Skip to the next iteration if mintId is null or undefined
+      }
   console.log("inserting " + mintId + " into code block");
   try {      
       //console.log("getings URI")
       processedIds.add(mintId)
       const uri = await getTokenMetadata(mintId);
+
+      if (!uri) {
+        console.log(`No URI found for mintId: ${mintId}`);
+        continue; // Skip to the next iteration if no URI is returned
+      }
+
       const metaData = await fetchData(uri, mintId)
       await sendToDiscordWebhook(metaData)
 
