@@ -3,10 +3,10 @@ const axios = require('axios');
 async function sendToDiscordWebhook(metadata) {
     const webhookUrl = 'https://discord.com/api/webhooks/1200200236128280667/QnwdnLkUpNPCwqe5ya_pCVOsdq_l5fnn1iK_KVzMraXTC4wzHgimdM-VfOwo5iGOUpjf';
 
-    if(metadata.name && metadata.url && metadata.twitter)
-    {
+   // if(metadata.name && metadata.url && metadata.twitter)
+ //   {
 
-    console.log(metadata)
+    console.log("this has hit meta data" + metadata)
     const message = `Name: ${metadata.name}
     \nSymbol: ${metadata.symbol}
     \nURL: ${metadata.url}
@@ -16,6 +16,7 @@ async function sendToDiscordWebhook(metadata) {
     \n -----------------------------------------------------------------------------------\n`;
 
     try {
+        ("trying to post to discord")
         await axios.post(webhookUrl, {
             content: message
         });
@@ -24,6 +25,6 @@ async function sendToDiscordWebhook(metadata) {
         console.error('Error sending message to Discord:', error.message);
     }
 }
-}
+//}
 
 module.exports = { sendToDiscordWebhook };
