@@ -8,6 +8,7 @@ app.use(express.json());
 app.post('/token_mint', async (req, res) => {
   try {
     let mintIds = new Set();  // Use a Set to store unique mint IDs
+    let processedIds = new Set(); // Set to track processed IDs
   
     if (!Array.isArray(req.body)) {
         throw new Error("Invalid input: req.body is not an array.");
@@ -38,6 +39,7 @@ for (const mintId of mintIds) {
   console.log("inserting " + mintId + " into code block");
   try {      
       //console.log("getings URI")
+      processedIds.add(mintId)
       const uri = await getTokenMetadata(mintId);
       const metaData = await fetchData(uri, mintId)
       await sendToDiscordWebhook(metaData)
