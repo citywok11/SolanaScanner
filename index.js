@@ -31,6 +31,10 @@ app.post('/token_mint', async (req, res) => {
 
 // Use a for...of loop to handle async operations
 for (const mintId of mintIds) {
+    if (processedIds.has(mintId)) {
+        console.log(`Skipping duplicate mintId: ${mintId}`);
+        continue; // Skip processing if the ID has already been processed
+      }
   console.log("inserting " + mintId + " into code block");
   try {      
       //console.log("getings URI")
