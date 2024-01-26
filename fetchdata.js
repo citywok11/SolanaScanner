@@ -8,7 +8,7 @@ async function fetchData(uri, mintId) {
 
         // The actual data is in the 'data' property of the response
         const json = response.data;
-        
+
         const twitter = json.extensions?.twitter
         const telegram = json.extensions?.telegram
         const url = json.extensions?.url
@@ -17,7 +17,7 @@ async function fetchData(uri, mintId) {
 
         console.log(json)
 
-        if (twitter && url && symbol && name) {
+        //if (twitter && url && symbol && name) {
             // All properties are neither null nor undefined
             const metadata = {
                 name : name,
@@ -26,10 +26,11 @@ async function fetchData(uri, mintId) {
                 twitter: twitter,
                 telegram: telegram,
                 url: url
-            };
+            }
+          //  };
 
             return metadata
-        }
+
 
     } catch (error) {
         console.error('Error fetching data:', error.message);

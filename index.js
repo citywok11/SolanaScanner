@@ -32,12 +32,10 @@ app.post('/token_mint', async (req, res) => {
 // Use a for...of loop to handle async operations
 for (const mintId of mintIds) {
   console.log("inserting " + mintId + " into code block");
-  try {
-      console.log("getings URI")
+  try {      
+      //console.log("getings URI")
       const uri = await getTokenMetadata(mintId);
-      console.log("getings Data")
       const metaData = await fetchData(uri, mintId)
-      console.log("Sending webhook" + metaData)
       await sendToDiscordWebhook(metaData)
 
 
