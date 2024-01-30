@@ -3,17 +3,27 @@ const axios = require('axios');
 async function sendToDiscordWebhook(metadata) {
     const webhookUrl = 'https://discord.com/api/webhooks/1200200236128280667/QnwdnLkUpNPCwqe5ya_pCVOsdq_l5fnn1iK_KVzMraXTC4wzHgimdM-VfOwo5iGOUpjf';
 
-   // if(metadata.name && metadata.url && metadata.twitter)
- //   {
-
     console.log("this has hit meta data" + metadata)
-    const message = `Name: ${metadata.name}
-    \nSymbol: ${metadata.symbol}
-    \nURL: ${metadata.url}
-    \nhttps://dexscreener.com/solana/${metadata.mintId}
-    \nhttps://rugcheck.xyz/tokens/${metadata.mintId}
-    \nTwitter: ${metadata.twitter}
-    \n -----------------------------------------------------------------------------------\n`;
+    let message = "\n\n\n\n -----------------------------------------------------------------------------------";
+
+    if (metadata.name) {
+        message += `\nName: ${metadata.name}`;
+    }
+    if (metadata.symbol) {
+        message += `\nSymbol: ${metadata.symbol}`;
+    }
+    if (metadata.website) {
+        message += `\nURL: ${metadata.website}`;
+    }
+    if (metadata.mintId) {
+        message += `\nMintId: ${metadata.mintId}`;
+        message += `\nhttps://dexscreener.com/solana/${metadata.mintId}`;
+        message += `\nhttps://rugcheck.xyz/tokens/${metadata.mintId}`;
+        message += `\nhttps://solscan.io/token/${metadata.mintId}`;
+    }
+    if (metadata.twitter) {
+        message += `\nTwitter: ${metadata.twitter}`;
+    }
 
     try {
         ("trying to post to discord")
@@ -25,6 +35,5 @@ async function sendToDiscordWebhook(metadata) {
         console.error('Error sending message to Discord:', error.message);
     }
 }
-//}
 
 module.exports = { sendToDiscordWebhook };

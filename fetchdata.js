@@ -11,13 +11,13 @@ async function fetchData(uri, mintId) {
 
         const twitter = json.extensions?.twitter
         const telegram = json.extensions?.telegram
-        const url = json.extensions?.url
+        const website = json.extensions?.website
         const name = json.name
         const symbol = json.symbol
 
         console.log(json)
 
-        if (twitter && url && symbol && name) {
+        //if (twitter && website && symbol && name) {
             // All properties are neither null nor undefined
             const metadata = {
                 name : name,
@@ -25,11 +25,12 @@ async function fetchData(uri, mintId) {
                 mintId: mintId,
                 twitter: twitter,
                 telegram: telegram,
-                url: url
+                website: website
             }
-            };
 
             return metadata
+            
+         //   };
 
 
     } catch (error) {

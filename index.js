@@ -1,76 +1,71 @@
-const { getTokenMetadata } = require('./metadata');
-const { fetchData } = require('./fetchdata')
 const express = require('express');
-const { sendToDiscordWebhook } = require('./discordWebhook')
+const { getTokenMetadata } = require('./metadata');
+const { fetchData } = require('./fetchdata');
+const { sendToDiscordWebhook } = require('./discordWebhook');
+const Queue = require('bull');
 const app = express();
 app.use(express.json());
 
-app.post('/token_mint', async (req, res) => {
-  try {
-    let mintIds = new Set();  // Use a Set to store unique mint IDs
-    let processedIds = new Set(); // Set to track processed IDs
-  
-    if (!Array.isArray(req.body)) {
+// Set up the Bull queue
+const mintIdQueue = new Queue('mintIdQueue', process.env.REDIS_URL || 'redis://127.0.0.1:6379');
+
+// Helper function to extract mint IDs from the request body
+const extractMintIds = (body) => {
+    const mintIds = new Set();
+    if (!Array.isArray(body)) {
         throw new Error("Invalid input: req.body is not an array.");
     }
-  
-    req.body.forEach((item) => {
-        if (item.accountData && Array.isArray(item.accountData)) {
-            item.accountData.forEach((accountDataItem) => {
-                if (accountDataItem.tokenBalanceChanges !== null && Array.isArray(accountDataItem.tokenBalanceChanges)) {
-                    accountDataItem.tokenBalanceChanges.forEach((change) => {
-                        if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112') {
-                            mintIds.add(change.mint); // Add unique and non-excluded mint IDs
-                        }
-                    });
+
+    body.forEach(item => {
+        item.accountData?.forEach(accountDataItem => {
+            accountDataItem.tokenBalanceChanges?.forEach(change => {
+                if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112') {
+                    mintIds.add(change.mint);
                 }
             });
-        }
+        });
     });
-    
-    console.log("Unique Mint IDs:", Array.from(mintIds));  // Convert the Set to an Array for display
 
-// Use a for...of loop to handle async operations
-for (const mintId of mintIds) {
-    if (processedIds.has(mintId)) {
-        console.log(`Skipping duplicate mintId: ${mintId}`);
-        continue; // Skip processing if the ID has already been processed
-      }
-      if (!mintId) {
-        console.log("Skipping null or undefined mintId");
-        continue; // Skip to the next iteration if mintId is null or undefined
-      }
-  console.log("inserting " + mintId + " into code block");
-  try {      
-      //console.log("getings URI")
-      processedIds.add(mintId)
-      const uri = await getTokenMetadata(mintId);
+    return mintIds;
+};
 
-      if (!uri) {
-        console.log(`No URI found for mintId: ${mintId}`);
-        continue; // Skip to the next iteration if no URI is returned
-      }
-      else {
-        const metaData = await fetchData(uri, mintId)
-      }
+// Function to process jobs in the queue
+mintIdQueue.process(async (job) => {
+    const mintId = job.data.mintId;
+    try {
+        const uri = await getTokenMetadata(mintId);
+        if (!uri) {
+            console.log(`No URI found for mintId: ${mintId}`);
+            return;
+        }
 
-      if (!metaData) {
-        console.log(`No metadata found for mintId: ${mintId}`);
-        continue; // Skip to the next iteration if no URI is returned
-      }
-      else {
-        await sendToDiscordWebhook(metaData)
-      }
+        const metaData = await fetchData(uri, mintId);
+        if (metaData) {
+            await sendToDiscordWebhook(metaData);
+        } else {
+            console.log(`No metadata found for mintId: ${mintId}`);
+        }
+    } catch (error) {
+        console.error("Error fetching metadata for", mintId, ":", error);
+    }
+});
 
-  } catch (error) {
-      console.error("Error fetching metadata for", mintId, ":", error);
-  }
-}
-  
-  } catch (error) {
-    console.error("Error in /token_mint route:", error.message);
-    res.status(400).send({ error: error.message });
-  }
+// Main route handler
+app.post('/token_mint', async (req, res) => {
+    try {
+        const mintIds = extractMintIds(req.body);
+        console.log("Unique Mint IDs:", [...mintIds]);
+
+        // Adding mintIds to the queue
+        mintIds.forEach(mintId => {
+            mintIdQueue.add({ mintId });
+        });
+
+        res.status(200).send({ message: 'mintIds queued for processing' });
+    } catch (error) {
+        console.error("Error in /token_mint route:", error.message);
+        res.status(400).send({ error: error.message });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
