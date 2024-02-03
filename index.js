@@ -2,6 +2,7 @@ const express = require('express');
 const { getTokenMetadata } = require('./metadata');
 const { fetchData } = require('./fetchdata');
 const { sendToDiscordWebhook } = require('./discordWebhook');
+const { htmlScraper} = require('./htmlScraper');
 const Queue = require('bull');
 const app = express();
 app.use(express.json());
@@ -41,7 +42,12 @@ mintIdQueue.process(async (job) => {
 
         const metaData = await fetchData(uri, mintId);
         if (metaData) {
-            await sendToDiscordWebhook(metaData);
+            if(metaData.website) {
+                if(await htmlScraper(metaData.website, metaData.mintId))
+                {
+                    await sendToDiscordWebhook(metaData);
+                }
+            }
         } else {
             console.log(`No metadata found for mintId: ${mintId}`);
         }
