@@ -14,6 +14,7 @@ async function fetchData(uri, mintId) {
         const website = json.extensions?.website
         const name = json.name
         const symbol = json.symbol
+        const creator = json.creator?.name
 
         console.log(json)
 
@@ -25,7 +26,8 @@ async function fetchData(uri, mintId) {
                 mintId: mintId,
                 twitter: twitter,
                 telegram: telegram,
-                website: website
+                website: website,
+                creator: creator
             }
 
             return metadata
