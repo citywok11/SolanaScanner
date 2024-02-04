@@ -60,6 +60,7 @@ mintIdQueue.process(async (job) => {
 app.post('/token_mint', async (req, res) => {
     try {
         const mintIds = extractMintIds(req.body);
+        console.log(req.body)
         console.log("Unique Mint IDs:", [...mintIds]);
 
         // Adding mintIds to the queue
