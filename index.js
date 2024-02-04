@@ -62,8 +62,13 @@ mintIdQueue.process(async (job) => {
 // Main route handler
 app.post('/token_mint', async (req, res) => {
     try {
-        console.log("accountData" + req.body.accountData)
-        console.log("instructions" + req.body.instructions)
+        req.body.accountData.forEach(item => {
+            console.log(item)
+        })
+
+        req.body.instructions.forEach(item => {
+            console.log(item)
+        })
 
         console.log("Unique Mint IDs:", [...mintIds]);
 
