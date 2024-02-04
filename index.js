@@ -62,7 +62,9 @@ mintIdQueue.process(async (job) => {
 // Main route handler
 app.post('/token_mint', async (req, res) => {
     try {
-        console.log(req.body)
+        console.log("accountData" + req.body.accountData)
+        console.log("instructions" + req.body.instructions)
+
         console.log("Unique Mint IDs:", [...mintIds]);
 
         // Adding mintIds to the queue
