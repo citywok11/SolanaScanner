@@ -21,7 +21,9 @@ const extractMintIds = (body) => {
         item.accountData?.forEach(accountDataItem => {
             accountDataItem.tokenBalanceChanges?.forEach(change => {
                 if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112') {
-                    console.log(change)
+                    change.foreach(item => {
+                        console.log(item)
+                    })
                     mintIds.add(change.mint);
                 }
             });
