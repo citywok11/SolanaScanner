@@ -43,7 +43,10 @@ mintIdQueue.process(async (job) => {
         const metaData = await fetchData(uri, mintId);
         if (metaData) {
             if(metaData.website) {
-                if(await htmlScraper(metaData.website, metaData.mintId) == true && metaData.twitter)
+
+                const telegramInUrl = metaData.website.toLowerCase().includes("https://t.me")
+
+                if(await htmlScraper(metaData.website, metaData.mintId) == true && metaData.twitter && !telegramInUrl)
                 {
                     await sendToDiscordWebhook(metaData);
                 }
