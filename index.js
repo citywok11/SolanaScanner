@@ -43,7 +43,7 @@ mintIdQueue.process(async (job) => {
         const metaData = await fetchData(uri, mintId);
         if (metaData) {
             if(metaData.website) {
-                if(await htmlScraper(metaData.website, metaData.mintId))
+                if(awaithtmlScraper(metaData.website, metaData.mintId) == true)
                 {
                     await sendToDiscordWebhook(metaData);
                 }
