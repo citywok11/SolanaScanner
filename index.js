@@ -64,10 +64,10 @@ req.body.forEach((item, index) => {
     console.log(`Data item ${index + 1}:`);
   
     // Check if nativeTransfers array exists and has content
-    if (item.nativeTransfers && item.nativeTransfers.length > 0) {
+    if (item.accountData && item.accountData.length > 0) {
       console.log('Native Transfers:');
       // Loop through the nativeTransfers array
-      item.nativeTransfers.forEach((transfer, transferIndex) => {
+      item.accountData.forEach((transfer, transferIndex) => {
         console.log(`Transfer ${transferIndex + 1}:`, transfer);
       });
     } else {
