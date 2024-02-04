@@ -3,11 +3,11 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const fs = require('fs').promises;
 
-//const url = 'https://thewolfofbonkstreet.site';
+const url = 'https://thewolfofbonkstreet.site';
 // The specific Solana mint address you're looking for
-//const tokenAddress = '3AXDzJRsbaibWgUMSxZk32gmajUsbWCokgDDyiinYFPi';
+const tokenAddress = '3AXDzJRsbaibWgUMSxZk32gmajUsbWCokgDDyiinYFPi';
 
-//htmlScraper(url, tokenAddress)
+htmlScraper(url, tokenAddress)
 
 async function htmlScraper(url, tokenAddress) {
     console.log("entered function");
