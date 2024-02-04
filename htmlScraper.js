@@ -14,9 +14,14 @@ async function htmlScraper(url, tokenAddress) {
   let options = new chrome.Options();
   options.setChromeBinaryPath('C:\\Work\\nodeApp\\chrome\\win64-121.0.6167.85\\chrome-win64\\chrome.exe');
   // If running on Heroku or any headless environment, uncomment the next line
-  options.addArguments('--headless'); // Enables headless mode
-  options.addArguments('--disable-gpu'); // Disables GPU hardware acceleration. If software renderer is not in place, then the GPU process won't launch.
-  options.addArguments('--window-size=1920,1080'); // Specifies the window size
+  options.addArguments("--headless"); // Run in headless mode
+  options.addArguments("--disable-gpu"); // Disable GPU hardware acceleration
+  options.addArguments("--no-sandbox"); // Disable the sandbox for running Chrome
+  options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
+  options.addArguments("--remote-debugging-port=9222"); // Specify debugging port
+  options.addArguments("--disable-extensions"); // Disable extensions
+  options.addArguments("--disable-setuid-sandbox"); // Disable the setuid sandbox
+  options.addArguments("--disable-infobars"); // Disable infobars
 
   let driver = await new Builder()
     .forBrowser('chrome')
