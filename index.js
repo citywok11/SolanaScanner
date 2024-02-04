@@ -19,7 +19,6 @@ const extractMintIds = (body) => {
 
     body.forEach(item => {
         item.accountData?.forEach(accountDataItem => {
-            console.log(item.accountData);
             accountDataItem.tokenBalanceChanges?.forEach(change => {
                 if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112') {
                     mintIds.add(change.mint);
@@ -60,7 +59,21 @@ mintIdQueue.process(async (job) => {
 // Main route handler
 app.post('/token_mint', async (req, res) => {
     try {
-        console.log(req.body)
+        // Loop through the data array
+req.body.forEach((item, index) => {
+    console.log(`Data item ${index + 1}:`);
+  
+    // Check if nativeTransfers array exists and has content
+    if (item.nativeTransfers && item.nativeTransfers.length > 0) {
+      console.log('Native Transfers:');
+      // Loop through the nativeTransfers array
+      item.nativeTransfers.forEach((transfer, transferIndex) => {
+        console.log(`Transfer ${transferIndex + 1}:`, transfer);
+      });
+    } else {
+      console.log('No native transfers found.');
+    }
+  });
         console.log("Unique Mint IDs:", [...mintIds]);
 
         // Adding mintIds to the queue
