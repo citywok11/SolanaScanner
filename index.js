@@ -19,6 +19,7 @@ const extractMintIds = (body) => {
 
     body.forEach(item => {
         item.accountData?.forEach(accountDataItem => {
+            console.log(accountDataItem);
             accountDataItem.tokenBalanceChanges?.forEach(change => {
                 if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112') {
                     mintIds.add(change.mint);
@@ -59,7 +60,6 @@ mintIdQueue.process(async (job) => {
 // Main route handler
 app.post('/token_mint', async (req, res) => {
     try {
-        const mintIds = extractMintIds(req.body);
         console.log(req.body)
         console.log("Unique Mint IDs:", [...mintIds]);
 
