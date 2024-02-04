@@ -21,9 +21,6 @@ const extractMintIds = (body) => {
         item.accountData?.forEach(accountDataItem => {
             accountDataItem.tokenBalanceChanges?.forEach(change => {
                 if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112') {
-                    change.foreach(item => {
-                        console.log(item)
-                    })
                     mintIds.add(change.mint);
                 }
             });
@@ -62,14 +59,7 @@ mintIdQueue.process(async (job) => {
 // Main route handler
 app.post('/token_mint', async (req, res) => {
     try {
-        req.body.accountData.forEach(item => {
-            console.log(item)
-        })
-
-        req.body.instructions.forEach(item => {
-            console.log(item)
-        })
-
+        const mintIds = extractMintIds(req.body);
         console.log("Unique Mint IDs:", [...mintIds]);
 
         // Adding mintIds to the queue
