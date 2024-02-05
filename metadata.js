@@ -2,6 +2,9 @@ const { Connection, PublicKey, clusterApiUrl } = require("@solana/web3.js");
 const { Metadata, PROGRAM_ID, METADATA_SCHEMA } = require("@metaplex-foundation/mpl-token-metadata");
 require('./logger'); // This patches console.log
 
+//const mintAddress = '9whtKG9QJXbFj2Boxp13GrS1mmWCcyhHXiuP8BHQaxrP'
+
+//getTokenMetadata(mintAddress);
 
 async function getTokenMetadata(mintAddress) {
     //console.log(mintAddress)

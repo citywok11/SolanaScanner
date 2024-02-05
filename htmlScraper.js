@@ -5,16 +5,16 @@ const fs = require('fs').promises;
 require('./logger'); // This patches console.log
 
 
-//const url = 'https://thewolfofbonkstreet.site';
+//const url = 'https://shib.fun/';
 // The specific Solana mint address you're looking for
-//const tokenAddress = '3AXDzJRsbaibWgUMSxZk32gmajUsbWCokgDDyiinYFPi';
+//const tokenAddress = '9whtKG9QJXbFj2Boxp13GrS1mmWCcyhHXiuP8BHQaxrP';
 
 //htmlScraper(url, tokenAddress)
 
 async function htmlScraper(url, tokenAddress) {
     console.log("entered function");
   let options = new chrome.Options();
-  options.setChromeBinaryPath('C:\\Work\\nodeApp\\chrome\\win64-121.0.6167.85\\chrome-win64\\chrome.exe');
+  //options.setChromeBinaryPath('C:\\Work\\nodeApp\\chrome\\win64-121.0.6167.85\\chrome-win64\\chrome.exe');
   // If running on Heroku or any headless environment, uncomment the next line
   options.addArguments("--headless"); // Run in headless mode
   options.addArguments("--disable-gpu"); // Disable GPU hardware acceleration
