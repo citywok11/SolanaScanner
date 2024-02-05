@@ -1,4 +1,5 @@
 const axios = require('axios');
+require('./logger'); // This patches console.log
 
 async function fetchData(uri, mintId) {
     try {

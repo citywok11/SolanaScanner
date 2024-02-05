@@ -2,6 +2,8 @@ const play = require('play-sound')(opts = {});
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const fs = require('fs').promises;
+require('./logger'); // This patches console.log
+
 
 //const url = 'https://thewolfofbonkstreet.site';
 // The specific Solana mint address you're looking for

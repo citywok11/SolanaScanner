@@ -1,5 +1,7 @@
 const { Connection, PublicKey, clusterApiUrl } = require("@solana/web3.js");
 const { Metadata, PROGRAM_ID, METADATA_SCHEMA } = require("@metaplex-foundation/mpl-token-metadata");
+require('./logger'); // This patches console.log
+
 
 async function getTokenMetadata(mintAddress) {
     //console.log(mintAddress)
