@@ -48,9 +48,11 @@ mintIdQueue.process(async (job) => {
 
                 const telegramInUrl = metaData.website.toLowerCase().includes("https://t.me")
 
+                const webhookUrl = 'https://discord.com/api/webhooks/1200200236128280667/QnwdnLkUpNPCwqe5ya_pCVOsdq_l5fnn1iK_KVzMraXTC4wzHgimdM-VfOwo5iGOUpjf';
+                await sendToDiscordWebhook(metaData, webhookUrl);
+
                 if(await htmlScraper(metaData.website, metaData.mintId) == true && metaData.twitter && !telegramInUrl)
                 {
-                    await sendToDiscordWebhook(metaData);
                 }
             }
         } else {
@@ -64,6 +66,8 @@ mintIdQueue.process(async (job) => {
 // Main route handler
 app.post('/token_mint', async (req, res) => {
     try {
+        let now = new Date();
+        console.log(now);
         const mintIds = extractMintIds(req.body);
         console.log("Unique Mint IDs:", [...mintIds]);
 

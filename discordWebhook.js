@@ -2,8 +2,7 @@ const axios = require('axios');
 require('./logger'); // This patches console.log
 
 
-async function sendToDiscordWebhook(metadata) {
-    const webhookUrl = 'https://discord.com/api/webhooks/1200200236128280667/QnwdnLkUpNPCwqe5ya_pCVOsdq_l5fnn1iK_KVzMraXTC4wzHgimdM-VfOwo5iGOUpjf';
+async function sendToDiscordWebhook(metadata, webhookUrl) {
 
     console.log("this has hit meta data" + metadata)
     let message = "\n\n\n\n -----------------------------------------------------------------------------------";
