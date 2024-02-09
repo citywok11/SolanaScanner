@@ -123,12 +123,11 @@ async function getQuoteResponse(outputMint) {
   return quoteResponse;
 }
 
-async function peformTransaction() {
+async function peformTransaction(outputMint) {
 
   console.log("performing transaction")
     // Fetching the quote response
     const inputMint = 'So11111111111111111111111111111111111111112';
-    const outputMint = 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN';
     const amount = '1000000';
     const slippageBps = '50'; // 0.5%
     const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=${slippageBps}`;
@@ -156,8 +155,15 @@ const txid = await connection.sendRawTransaction(rawTransaction, {
   skipPreflight: true,
   maxRetries: 2
 });
-await connection.confirmTransaction(txid);
-console.log(`confirmed transaction https://solscan.io/tx/${txid}`);
+// Use a confirmation strategy
+const confirmationStrategy = {
+  commitment: "confirmed", // Or "confirmed" based on your requirement for reliability vs. speed
+};
+
+// Await the confirmation using the updated method
+const confirmation = await connection.confirmTransaction({ signature: txid, ...confirmationStrategy });
+console.log(`Transaction confirmed with status: ${confirmation.value.err ? 'Error' : 'Success'}`);
+console.log(`Confirmed transaction: https://solscan.io/tx/${txid}`);
 
 }
 
@@ -177,6 +183,7 @@ async function getSwapTransaction(wallet, quoteResponse) {
           wrapAndUnwrapSol: true,
           // feeAccount is optional. Use if you want to charge a fee.  feeBps must have been passed in /quote API.
           // feeAccount: "fee_account_public_key"
+          prioritizationFeeLamports: 'auto' // or custom lamports: 1000
         })
       });
   
