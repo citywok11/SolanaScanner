@@ -200,6 +200,6 @@ async function getSwapTransaction(wallet, quoteResponse) {
     }
   }
 
-  peformTransaction('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN').catch(console.error).finally(() => process.exit());
+  //peformTransaction('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN').catch(console.error).finally(() => process.exit());
 
   module.exports = { peformTransaction };
