@@ -3,6 +3,7 @@ const fetch = require('cross-fetch');
 const { Wallet } = require('@project-serum/anchor');
 const bs58 = require('bs58');
 const { TOKEN_PROGRAM_ID, MintLayout } = require('@solana/spl-token');
+const { ConsoleLogEntry } = require('selenium-webdriver/bidi/logEntries');
 
 
 async function getTotalSupply(mintAddress) {
@@ -124,6 +125,7 @@ async function getQuoteResponse(outputMint) {
 
 async function peformTransaction() {
 
+  console.log("performing transaction")
     // Fetching the quote response
     const inputMint = 'So11111111111111111111111111111111111111112';
     const outputMint = 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN';
@@ -191,6 +193,6 @@ async function getSwapTransaction(wallet, quoteResponse) {
     }
   }
 
-  //peformTransaction('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN').catch(console.error).finally(() => process.exit());
+  peformTransaction('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN').catch(console.error).finally(() => process.exit());
 
   module.exports = { peformTransaction };
