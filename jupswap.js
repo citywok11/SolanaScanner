@@ -110,12 +110,11 @@ async function getUSDPriceForSol() {
   }
 }
 
-async function getQuoteResponse() {
+async function getQuoteResponse(outputMint) {
   // Fetching the quote response
   const inputMint = 'So11111111111111111111111111111111111111112';
-  const outputMint = 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN';
-  const amount = '1000000';
-  const slippageBps = '50'; // 0.5%
+  const amount = '10000000';
+  const slippageBps = '5000'; // 0.5%
   const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=${slippageBps}`;
   const quoteResponse = await (await fetch(quoteUrl)).json();
 
@@ -125,7 +124,15 @@ async function getQuoteResponse() {
 
 async function peformTransaction() {
 
-  await getQuoteResponse()
+    // Fetching the quote response
+    const inputMint = 'So11111111111111111111111111111111111111112';
+    const outputMint = 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN';
+    const amount = '1000000';
+    const slippageBps = '50'; // 0.5%
+    const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=${slippageBps}`;
+    const quoteResponse = await (await fetch(quoteUrl)).json();
+
+    console.log({ quoteResponse });
 
     // Fetching the swap transaction
     const swapTransaction = await getSwapTransaction(wallet, quoteResponse);
@@ -184,4 +191,6 @@ async function getSwapTransaction(wallet, quoteResponse) {
     }
   }
 
-  getTokenValueForOneSol('FHXJZxDuz2BXAfajZe7N7SvUChnH3xm2hMyjyLhoqW39').catch(console.error).finally(() => process.exit());
+  //peformTransaction('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN').catch(console.error).finally(() => process.exit());
+
+  module.exports = { peformTransaction };
