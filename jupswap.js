@@ -2,7 +2,7 @@ const { PublicKey, Connection, Keypair, VersionedTransaction } = require('@solan
 const fetch = require('cross-fetch');
 const { Wallet } = require('@project-serum/anchor');
 const bs58 = require('bs58');
-const { TOKEN_PROGRAM_ID, MintLayout } = require('@solana/spl-token');
+const { Token , TOKEN_PROGRAM_ID, MintLayout } = require('@solana/spl-token');
 const { ConsoleLogEntry } = require('selenium-webdriver/bidi/logEntries');
 
 
@@ -124,12 +124,14 @@ async function getQuoteResponse(outputMint) {
 }
 
 async function peformTransaction(outputMint) {
+  try {
+  const connection = new Connection("https://solana-mainnet.core.chainstack.com/3dbe33dea30834cafccfd88dbde184e4", "confirmed");
 
   console.log("performing transaction")
     // Fetching the quote response
     const inputMint = 'So11111111111111111111111111111111111111112';
-    const amount = '1000000';
-    const slippageBps = '50'; // 0.5%
+    const amount = '5000000';
+    const slippageBps = '10000 '; // 0.5%
     const quoteUrl = `https://quote-api.jup.ag/v6/quote?inputMint=${inputMint}&outputMint=${outputMint}&amount=${amount}&slippageBps=${slippageBps}`;
     const quoteResponse = await (await fetch(quoteUrl)).json();
 
@@ -138,32 +140,32 @@ async function peformTransaction(outputMint) {
     // Fetching the swap transaction
     const swapTransaction = await getSwapTransaction(wallet, quoteResponse);
 
-// deserialize the transaction
-const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
-var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
-console.log("this is the transaction :" + transaction);
+    // Deserialize the transaction
+    const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
+    var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+    //console.log("this is the transaction: " + transaction);
 
-// sign the transaction
-transaction.sign([wallet.payer]);
+    // Sign the transaction
+    transaction.sign([wallet.payer]); // Assuming wallet.payer is a Keypair object
 
-let now = new Date();
-console.log("executing now :" + now);
+    let now = new Date();
+    console.log("executing now :" + now);
 
-// Execute the transaction
-const rawTransaction = transaction.serialize()
-const txid = await connection.sendRawTransaction(rawTransaction, {
-  skipPreflight: true,
-  maxRetries: 2
-});
-// Use a confirmation strategy
-const confirmationStrategy = {
-  commitment: "confirmed", // Or "confirmed" based on your requirement for reliability vs. speed
-};
+    // Execute the transaction
+    const rawTransaction = transaction.serialize();
+    const txid = await connection.sendRawTransaction(rawTransaction, {
+        skipPreflight: true,
+        maxRetries: 2
+    });
 
-// Await the confirmation using the updated method
-const confirmation = await connection.confirmTransaction({ signature: txid, ...confirmationStrategy });
-console.log(`Transaction confirmed with status: ${confirmation.value.err ? 'Error' : 'Success'}`);
-console.log(`Confirmed transaction: https://solscan.io/tx/${txid}`);
+    //console.log(`confirmed transaction https://solscan.io/tx/${txid}`);
+
+    //await findTokenAccountsByOwner(wallet, outputMint)
+    //await getTokenBalance(wallet.publicKey.toString(),outputMint)
+  }
+  catch (error) {
+    console.log(error)
+  }
 
 }
 
@@ -183,7 +185,6 @@ async function getSwapTransaction(wallet, quoteResponse) {
           wrapAndUnwrapSol: true,
           // feeAccount is optional. Use if you want to charge a fee.  feeBps must have been passed in /quote API.
           // feeAccount: "fee_account_public_key"
-          prioritizationFeeLamports: 'auto' // or custom lamports: 1000
         })
       });
   
@@ -200,6 +201,40 @@ async function getSwapTransaction(wallet, quoteResponse) {
     }
   }
 
-  //peformTransaction('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN').catch(console.error).finally(() => process.exit());
+  async function findTokenAccountsByOwner(wallet, mintId) {
+    const connection = new Connection("https://solana-mainnet.core.chainstack.com/3dbe33dea30834cafccfd88dbde184e4", "confirmed");
+
+    const tokenMintPublicKey = new PublicKey(mintId);
+    const walletPublicKey = new PublicKey(wallet.publicKey.toString())
+
+
+    // Filter for token accounts by the token's mint address
+    const filter = { mint: tokenMintPublicKey };
+
+  
+    // Find all token accounts for the wallet
+    const tokenAccounts = await connection.getParsedTokenAccountsByOwner(walletPublicKey, filter)
+  
+    return tokenAccounts.value;
+  }
+
+  async function getTokenBalance(walletAddress, tokenMintAddress) {
+    const tokenAccounts = await findTokenAccountsByOwner(walletAddress);
+  
+    // Filter for accounts with the specific token mint
+    const specificTokenAccounts = tokenAccounts.filter(account => account.account.data.parsed.info.mint === tokenMintAddress);
+  
+    let totalBalance = 0;
+    specificTokenAccounts.forEach(account => {
+      const balance = account.account.data.parsed.info.tokenAmount.uiAmount;
+      console.log(`Account: ${account.pubkey.toString()}, Balance: ${balance}`);
+      totalBalance += balance;
+    });
+  
+    console.log(`Total Balance of token ${tokenMintAddress} is: ${totalBalance}`);
+    return totalBalance;
+  }
+
+  //peformTransaction('DNyc5SB1V8DqxMMYdaofG7uZFVyFzPGq1dyiDoNo6tSj').catch(console.error).finally(() => process.exit());
 
   module.exports = { peformTransaction };
