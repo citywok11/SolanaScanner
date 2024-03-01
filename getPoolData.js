@@ -186,4 +186,4 @@ async function fetchLiquidityPools(quoteMintId) {
     ];
 } */
 
-queryLpBaseTokenAmount();
+//queryLpBaseTokenAmount();
