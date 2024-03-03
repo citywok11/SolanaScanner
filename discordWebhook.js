@@ -1,7 +1,6 @@
 const axios = require('axios');
 require('./logger'); // This patches console.log
 
-
 async function sendToDiscordWebhook(metadata, webhookUrl) {
 
     console.log("this has hit meta data" + metadata)
