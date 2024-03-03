@@ -22,7 +22,9 @@ catch(error) {
 async function getPrice(baseVaultPublicKey, webhookUrl, metaData) {
 
     try {
-
+        var initAmount;
+        var hasRugged = false;
+        var poolsClosed = false;
         for (let i = 0; i < 100; i++) {
             let message = ""
             const basePubKey = new PublicKey(baseVaultPublicKey);
@@ -52,10 +54,15 @@ async function getPrice(baseVaultPublicKey, webhookUrl, metaData) {
                 var now = new Date();
                 message = '\n\n\n\n-----------------------------------------------------------------------------------';
                 message += `\nl${((now))}`;
+                initAmount = adjustedBaseTokenAmount;
             }
             if(i === 3) {
                 message += `\nlets pretend I bought here`;
                 initialPurchase = adjustedBaseTokenAmount;
+                if(initAmount === adjustedBaseTokenAmount) {
+                  message = "pools closed sir";
+                  poolsClosed = true;
+                }
                 
             }
 
@@ -73,11 +80,20 @@ async function getPrice(baseVaultPublicKey, webhookUrl, metaData) {
                 message  += `\nSol in pool: ${metaData.name + " " + adjustedBaseTokenAmount}`;
             }
 
+            if(adjustedBaseTokenAmount < 1) {
+              hasRugged = true;
+              message = "RUGGED";
+            }
+
             
 
             await axios.post(webhookUrl, {
                 content: message
             });
+
+            if(hasRugged === true || poolsClosed == true) {
+              break;
+            }
 
            // console.log("Sol in the LP:", adjustedBaseTokenAmount); // Assuming adjustedBaseTokenAmount is accessible
         }

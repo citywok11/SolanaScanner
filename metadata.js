@@ -11,7 +11,6 @@ async function getTokenMetadata(mintAddress) {
     const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
     const mintPublicKey = new PublicKey(mintAddress);
 
-    try{
     // Find the PDA for the token metadata
     const [pda] = await PublicKey.findProgramAddressSync(
         [
@@ -21,12 +20,9 @@ async function getTokenMetadata(mintAddress) {
         ],
         PROGRAM_ID
     );
-    }
-    catch (error) {
-        Console.log(error)
-    }
-
+    
 try {
+   // console.log([pda])
     // Fetch the account info
 const accountInfo = await connection.getAccountInfo(pda);
 

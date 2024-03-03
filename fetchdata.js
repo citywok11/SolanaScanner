@@ -3,7 +3,7 @@ require('./logger'); // This patches console.log
 
 async function fetchData(uri, mintId) {
     try {
-        console.log(mintId);
+        //console.log(mintId);
 
         // Make the request and get the response object
         const response = await axios.get(uri);

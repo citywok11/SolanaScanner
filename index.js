@@ -15,9 +15,9 @@ require('./logger'); // This patches console.log
 // Set up the Bull queue
 const mintIdQueue = new Queue('mintIdQueue', process.env.REDIS_URL || 'redis://127.0.0.1:6379');
 
+
 // Helper function to extract mint IDs from the request body
 const extractMintIds = (body) => {
-
     const mintJson = {};
     if (!Array.isArray(body)) {
         throw new Error("Invalid input: req.body is not an array.");
@@ -29,25 +29,27 @@ const extractMintIds = (body) => {
         item.accountData?.forEach(accountDataItem => {
             accountDataItem.tokenBalanceChanges?.forEach(change => {
                 //console.log(accountDataItem);
-                if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112' && accountDataItem.nativeBalanceChange == '0') {
+                if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112') {
+                    if(accountDataItem.nativeBalanceChange == '0') {
                     //mintIds.add(change.mint);
                     mintJson["mintId"] = change.mint
-                    
+                    }
                 }
-                if(accountDataItem.nativeBalanceChange != '400000000' & change.mint !== 'So11111111111111111111111111111111111111112')
+                else 
                 {
-                    referenceId = accountDataItem.account;
-                    mintJson["vaultId"] = accountDataItem.account;
-                    // console.log("reference is" + referenceId);
+                    if(accountDataItem.nativeBalanceChange != '400000000')
+                    {
+                        referenceId = accountDataItem.account;
+                        mintJson["vaultId"] = accountDataItem.account;
+                        //console.log("reference is" + referenceId);
+                    }
                 }
-                
             });
         });
     });
 
     return mintJson;
 };
-
 
 
 // Function to process jobs in the queue
@@ -94,8 +96,8 @@ mintIdQueue.process(async (job) => {
 // Main route handler
 app.post('/token_mint', async (req, res) => {
     try {
-        let now = new Date();
-        console.log(now);
+        //let now = new Date();
+        //console.log(now);
         const mintJson = extractMintIds(req.body);
 
         //console.log(mintJson)
