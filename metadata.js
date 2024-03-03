@@ -7,10 +7,11 @@ require('./logger'); // This patches console.log
 //getTokenMetadata(mintAddress);
 
 async function getTokenMetadata(mintAddress) {
-    //console.log(mintAddress)
+    console.log(mintAddress)
     const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
     const mintPublicKey = new PublicKey(mintAddress);
 
+    try{
     // Find the PDA for the token metadata
     const [pda] = await PublicKey.findProgramAddressSync(
         [
@@ -20,6 +21,10 @@ async function getTokenMetadata(mintAddress) {
         ],
         PROGRAM_ID
     );
+    }
+    catch (error) {
+        Console.log(error)
+    }
 
 try {
     // Fetch the account info

@@ -17,33 +17,30 @@ const mintIdQueue = new Queue('mintIdQueue', process.env.REDIS_URL || 'redis://1
 
 // Helper function to extract mint IDs from the request body
 const extractMintIds = (body) => {
+
     const mintJson = {};
     if (!Array.isArray(body)) {
         throw new Error("Invalid input: req.body is not an array.");
     }
-
     body.forEach(item => {
 
         var referenceId;
 
         item.accountData?.forEach(accountDataItem => {
             accountDataItem.tokenBalanceChanges?.forEach(change => {
-                console.log(accountDataItem);
-                if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112') {
-                    if(accountDataItem.nativeBalanceChange == '0') {
+                //console.log(accountDataItem);
+                if (change.mint && change.mint !== 'So11111111111111111111111111111111111111112' && accountDataItem.nativeBalanceChange == '0') {
                     //mintIds.add(change.mint);
                     mintJson["mintId"] = change.mint
-                    }
+                    
                 }
-                else 
+                if(accountDataItem.nativeBalanceChange != '400000000' & change.mint !== 'So11111111111111111111111111111111111111112')
                 {
-                    if(accountDataItem.nativeBalanceChange != '400000000')
-                    {
-                        referenceId = accountDataItem.account;
-                        mintJson["vaultId"] = accountDataItem.account;
-                        console.log("reference is" + referenceId);
-                    }
+                    referenceId = accountDataItem.account;
+                    mintJson["vaultId"] = accountDataItem.account;
+                    // console.log("reference is" + referenceId);
                 }
+                
             });
         });
     });
@@ -56,16 +53,17 @@ const extractMintIds = (body) => {
 // Function to process jobs in the queue
 mintIdQueue.process(async (job) => {
     console.log(job.data.mintJson);
-    const mintId = job.data.mintJson.mintId;
-    const vaultId = job.data.mintJson.vaultId;
+    let mintId = job.data.mintJson.mintId;
+    let vaultId = job.data.mintJson.vaultId
 
-    console.log("vault id is blah: " + vaultId);
     try {
         const uri = await getTokenMetadata(mintId);
         if (!uri) {
             console.log(`No URI found for mintId: ${mintId}`);
             return;
         }
+
+        console.log("uri is " + uri);
 
         const metaData = await fetchData(uri, mintId);
         if (metaData) {
@@ -88,7 +86,7 @@ mintIdQueue.process(async (job) => {
         } else {
             console.log(`No metadata found for mintId: ${mintId}`);
         }
-    } catch (error) {
+    }  catch (error) {
         console.error("Error fetching metadata for", mintId, ":", error);
     }
 });
@@ -100,7 +98,7 @@ app.post('/token_mint', async (req, res) => {
         console.log(now);
         const mintJson = extractMintIds(req.body);
 
-      //  console.log(mintJson)
+        //console.log(mintJson)
 
         mintIdQueue.add({ mintJson });
 
