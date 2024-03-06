@@ -66,7 +66,7 @@ async function getPrice(baseVaultPublicKey, webhookUrl, metaData) {
                 
             }
 
-            if(i === 30) { 
+            if(i === 20) { 
                 finalAmount = adjustedBaseTokenAmount;
                 var profitLoss = "profit"
                 if(initialPurchase > finalAmount) { profitLoss = "loss" }

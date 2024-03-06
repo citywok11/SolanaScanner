@@ -75,15 +75,18 @@ mintIdQueue.process(async (job) => {
 
                 const telegramInUrl = metaData.website.toLowerCase().includes("https://t.me")
 
+
+
                 //await peformTransaction(metaData.mintId)
                // await peformTransaction(mintId)
-                await sendToDiscordWebhook(metaData, webhookUrl);
-                getPrice(vaultId, webhookUrl, metaData);
+ 
 
 
-               // if(await htmlScraper(metaData.website, metaData.mintId) == true && metaData.twitter && !telegramInUrl)
-               // {
-               // }
+                if(await htmlScraper(metaData.website, metaData.mintId) == true && metaData.twitter && !telegramInUrl)
+                {
+                    await sendToDiscordWebhook(metaData, webhookUrl);
+                    getPrice(vaultId, webhookUrl, metaData);
+                }
             }
         } else {
             console.log(`No metadata found for mintId: ${mintId}`);
