@@ -51,6 +51,7 @@ async function htmlScraper(url, tokenAddress) {
         }
       } catch (error) {
         console.error('Error processing page source:', error);
+        await driver.quit();
       } finally {
         await driver.quit();
       }
