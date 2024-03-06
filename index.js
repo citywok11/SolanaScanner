@@ -10,32 +10,11 @@ const app = express();
 const { queryLpBaseTokenAmount } = require('./getPoolData')
 app.use(express.json());
 require('./logger'); // This patches console.log
-const Redis = require('ioredis');
 
 
-// Determine if we're running in a production environment with an SSL-enabled Redis URL
-const isProduction = process.env.REDIS_URL && process.env.REDIS_URL.startsWith('rediss://');
+const mintIdQueue = new Queue('mintIdQueue', process.env.REDIS_URL || 'redis://127.0.0.1:6379');
 
-let redisOptions = {};
 
-// If in production and using SSL, set appropriate TLS options
-if (isProduction) {
-    redisOptions = {
-        tls: {
-            // Setting rejectUnauthorized to false is necessary in some cases where the SSL certificate
-            // cannot be validated by Node.js's default CA list, but be cautious with this approach
-            // in a production environment for security reasons.
-            rejectUnauthorized: false
-        }
-    };
-}
-
-// Use the REDIS_URL for production, fallback to local Redis instance for development
-const redisConfig = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-
-const mintIdQueue = new Queue('mintIdQueue', {
-    redis: new Redis(redisConfig, redisOptions)
-});
 
 // Helper function to extract mint IDs from the request body
 const extractMintIds = (body) => {
