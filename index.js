@@ -14,8 +14,7 @@ require('./logger'); // This patches console.log
 
 const mintIdQueue = new Queue('mintIdQueue', process.env.REDIS_URL || 'redis://127.0.0.1:6379');
 
-
-
+//change
 // Helper function to extract mint IDs from the request body
 const extractMintIds = (body) => {
     const mintJson = {};
