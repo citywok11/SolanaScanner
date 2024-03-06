@@ -1,5 +1,8 @@
 const axios = require('axios');
 require('./logger'); // This patches console.log
+const { getPrice } = require('./getPoolData');
+const { insertDataIntoMongoDB } = require('./postToMongo');
+
 
 async function sendToDiscordWebhook(metadata, webhookUrl) {
 
@@ -30,6 +33,13 @@ async function sendToDiscordWebhook(metadata, webhookUrl) {
         await axios.post(webhookUrl, {
             content: message
         });
+
+        try {
+            await insertDataIntoMongoDB(metadata);
+        }
+        catch (error) {
+            console.log("Failed to send to mongo");
+        }
         console.log('Message sent to Discord successfully');
     } catch (error) {
         console.error('Error sending message to Discord:', error.message);
