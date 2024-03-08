@@ -16,21 +16,24 @@ async function fetchData(uri, mintId) {
         const website = json.extensions?.website
         const name = json.name
         const symbol = json.symbol
+        const creator = json.creator
 
         console.log(json)
 
         //if (twitter && website && symbol && name) {
             // All properties are neither null nor undefined
-            const metadata = {
+            const metaData = {
                 name : name,
                 symbol : symbol,
                 mintId: mintId,
                 twitter: twitter,
                 telegram: telegram,
-                website: website
+                website: website,
+                poolOpened: new Date().toISOString(),
+                creator: creator
             }
 
-            return metadata
+            return metaData
             
          //   };
 

@@ -14,7 +14,7 @@ require('./logger'); // This patches console.log
 async function htmlScraper(url, tokenAddress) {
     console.log("entered function");
   let options = new chrome.Options();
-  //options.setChromeBinaryPath('C:\\Work\\nodeApp\\chrome\\win64-121.0.6167.85\\chrome-win64\\chrome.exe');
+  options.setChromeBinaryPath('C:\\Work\\nodeApp\\chrome\\win64-121.0.6167.85\\chrome-win64\\chrome.exe');
   // If running on Heroku or any headless environment, uncomment the next line
   options.addArguments("--headless"); // Run in headless mode
   options.addArguments("--disable-gpu"); // Disable GPU hardware acceleration

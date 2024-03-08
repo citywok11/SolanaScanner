@@ -1,49 +1,56 @@
 const axios = require('axios');
 require('./logger'); // This patches console.log
 const { getPrice } = require('./getPoolData');
-const { insertDataIntoMongoDB } = require('./postToMongo');
+const { insertDataIntoMongoDB, insertDataIntoMongoDBForMetadata } = require('./postToMongo');
 
 
-async function sendToDiscordWebhook(metadata, webhookUrl) {
+async function sendToDiscordWebhook(metaData, webhookUrl, vaultId, shitCoinMetaDataId) {
 
-    console.log("this has hit meta data" + metadata)
+    var mongoId;
+    console.log("this has hit meta data" + metaData)
     let message = "\n\n\n\n -----------------------------------------------------------------------------------";
 
-    if (metadata.name) {
-        message += `\nName: ${metadata.name}`;
+    if (metaData.name) {
+        message += `\nName: ${metaData.name}`;
     }
-    if (metadata.symbol) {
-        message += `\nSymbol: ${metadata.symbol}`;
+    if (metaData.symbol) {
+        message += `\nSymbol: ${metaData.symbol}`;
     }
-    if (metadata.website) {
-        message += `\nURL: ${metadata.website}`;
+    if (metaData.website) {
+        message += `\nURL: ${metaData.website}`;
     }
-    if (metadata.mintId) {
-        message += `\nMintId: ${metadata.mintId}`;
-        message += `\nhttps://dexscreener.com/solana/${metadata.mintId}`;
-        message += `\nhttps://rugcheck.xyz/tokens/${metadata.mintId}`;
-        message += `\nhttps://solscan.io/token/${metadata.mintId}`;
+    if (metaData.mintId) {
+        message += `\nMintId: ${metaData.mintId}`;
+        message += `\nhttps://dexscreener.com/solana/${metaData.mintId}`;
+        message += `\nhttps://rugcheck.xyz/tokens/${metaData.mintId}`;
+        message += `\nhttps://solscan.io/token/${metaData.mintId}`;
     }
-    if (metadata.twitter) {
-        message += `\nTwitter: ${metadata.twitter}`;
+    if (metaData.twitter) {
+        message += `\nTwitter: ${metaData.twitter}`;
     }
 
-    try {
-        ("trying to post to discord")
+   /* try {
         await axios.post(webhookUrl, {
             content: message
         });
 
-        try {
-            await insertDataIntoMongoDB(metadata);
-        }
-        catch (error) {
-            console.log("Failed to send to mongo");
-        }
+        console.log("posted to discord");
+
         console.log('Message sent to Discord successfully');
     } catch (error) {
         console.error('Error sending message to Discord:', error.message);
     }
+    finally { */
+
+        try {
+        }
+        catch (error) {
+            console.log("Failed to send to ShitCoins mongo error:" + error);
+        }
+        finally {
+            await getPrice(vaultId, webhookUrl, metaData, shitCoinMetaDataId, 'ShitCoinDb', 'ShitCoinHistoricalData');
+        }
+  //  }
 }
 
 module.exports = { sendToDiscordWebhook };

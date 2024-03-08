@@ -1,15 +1,17 @@
 const { peformTransaction}  = require('./jupswap')
 const express = require('express');
-const { getTokenMetadata } = require('./metadata');
+const { getTokenMetadata } = require('./metaData');
 const { fetchData } = require('./fetchdata');
 const { sendToDiscordWebhook } = require('./discordWebhook');
-const { getPrice } = require('./getPoolData');
 const { htmlScraper} = require('./htmlScraper');
 const Queue = require('bull');
 const app = express();
 const { queryLpBaseTokenAmount } = require('./getPoolData')
 app.use(express.json());
 require('./logger'); // This patches console.log
+const { connectToServer } = require('./db');
+const { insertDataIntoMongoDBForMetadata } = require('./postToMongo');
+
 
 
 const mintIdQueue = new Queue('mintIdQueue', process.env.REDIS_URL || 'redis://127.0.0.1:6379');
@@ -54,8 +56,8 @@ const extractMintIds = (body) => {
 // Function to process jobs in the queue
 mintIdQueue.process(async (job) => {
     console.log(job.data.mintJson);
-    let mintId = job.data.mintJson.mintId;
-    let vaultId = job.data.mintJson.vaultId
+    const mintId = job.data.mintJson.mintId;
+    const vaultId = job.data.mintJson.vaultId
 
     try {
         const uri = await getTokenMetadata(mintId);
@@ -66,9 +68,10 @@ mintIdQueue.process(async (job) => {
 
         console.log("uri is " + uri);
 
-        const metaData = await fetchData(uri, mintId);
+        const metaData = await fetchData(uri, mintId, vaultId);
         if (metaData) {
             const webhookUrl = 'https://discord.com/api/webhooks/1200200236128280667/QnwdnLkUpNPCwqe5ya_pCVOsdq_l5fnn1iK_KVzMraXTC4wzHgimdM-VfOwo5iGOUpjf';
+
             //await queryLpBaseTokenAmount(metaData.mintId);
             if(metaData.website) {
 
@@ -77,19 +80,19 @@ mintIdQueue.process(async (job) => {
                 //await peformTransaction(metaData.mintId)
                // await peformTransaction(mintId)
  
-               await sendToDiscordWebhook(metaData, webhookUrl);
+              // await sendToDiscordWebhook(metaData, webhookUrl);
 
                 if(await htmlScraper(metaData.website, metaData.mintId) == true && metaData.twitter && !telegramInUrl)
                 {
-                    await sendToDiscordWebhook(metaData, webhookUrl);
-                    getPrice(vaultId, webhookUrl, metaData);
-                 }
+                    shitCoinMetaDataId = await insertDataIntoMongoDBForMetadata(metaData, "ShitCoinDb", "ShitCoinMetaData", metaData.name);
+                   await sendToDiscordWebhook(metaData, webhookUrl, vaultId, shitCoinMetaDataId);
+                }
             }
         } else {
-            console.log(`No metadata found for mintId: ${mintId}`);
+            console.log(`No metaData found for mintId: ${mintId}`);
         }
     }  catch (error) {
-        console.error("Error fetching metadata for", mintId, ":", error);
+        console.error("Error fetching metaData for", mintId, ":", error);
     }
 });
 
@@ -128,8 +131,22 @@ function findSpecificAccounts(data) {
 
     return accountNumbers;
 }
+    
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+
+(async () => {
+    try {
+        //connects to mongo
+        await connectToServer();
+        // Database connection is now established, start the server
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+
+
+    } catch (err) {
+        console.error('Error starting the application:', err);
+        process.exit(1);
+    }
+})();
