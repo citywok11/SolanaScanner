@@ -119,7 +119,7 @@ if(!historicalId) {
               hasRugged = true;
               message = "RUGGED";
               console.log("RUGGED");
-              addDataToRug(historicalId, 'ShitCoinMetaData')
+              await addDataToRug(historicalId, 'ShitCoinMetaData')
           }
 
           //await axios.post(webhookUrl, { content: message });

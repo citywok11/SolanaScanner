@@ -101,8 +101,8 @@ async function addDataToRug(historicalId, collectionName) {
         // Perform the update operation
         const result = await collection.updateOne(
             {_id : new ObjectId(historicalId)},
-            { $push: { [`hasRugged`]: `true` } },
-            { upsert: true } // Set to true if you want to create a new document when no document matches the criteria
+            { $set: { [`hasRugged`]: `true` } },
+            { upsert: false } // Set to true if you want to create a new document when no document matches the criteria
         );
 
         console.log(`Document updated. Matched it has been notified as being rugged`);
