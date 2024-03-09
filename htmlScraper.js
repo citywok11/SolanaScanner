@@ -4,6 +4,19 @@ const chrome = require('selenium-webdriver/chrome');
 const fs = require('fs').promises;
 require('./logger'); // This patches console.log
 
+const drivers = []; // This array will hold references to all active WebDriver instances
+
+async function createDriver() {
+  let options = new chrome.Options();
+  // Include all the necessary Chrome options you had before
+  options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage", "--remote-debugging-port=9222", "--disable-extensions", "--disable-setuid-sandbox", "--disable-infobars");
+  // Set Chrome binary path if necessary
+  options.setChromeBinaryPath('C:\\Work\\nodeApp\\chrome\\win64-121.0.6167.85\\chrome-win64\\chrome.exe');
+  
+  let driver = await new Builder().forBrowser('chrome').setChromeOptions(options).build();
+  drivers.push(driver); // Keep track of the driver
+  return driver;
+}
 
 //const url = 'https://shib.fun/';
 // The specific Solana mint address you're looking for
@@ -11,29 +24,13 @@ require('./logger'); // This patches console.log
 
 //htmlScraper(url, tokenAddress)
 
-async function htmlScraper(url, tokenAddress) {
+async function htmlScraper(driver, url, tokenAddress) {
     console.log("entered function");
-  let options = new chrome.Options();
-  options.setChromeBinaryPath('C:\\Work\\nodeApp\\chrome\\win64-121.0.6167.85\\chrome-win64\\chrome.exe');
-  // If running on Heroku or any headless environment, uncomment the next line
-  options.addArguments("--headless"); // Run in headless mode
-  options.addArguments("--disable-gpu"); // Disable GPU hardware acceleration
-  options.addArguments("--no-sandbox"); // Disable the sandbox for running Chrome
-  options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
-  options.addArguments("--remote-debugging-port=9222"); // Specify debugging port
-  options.addArguments("--disable-extensions"); // Disable extensions
-  options.addArguments("--disable-setuid-sandbox"); // Disable the setuid sandbox
-  options.addArguments("--disable-infobars"); // Disable infobars
-
-  let driver = await new Builder()
-    .forBrowser('chrome')
-    .setChromeOptions(options)
-    .build();
 
     try {
         await driver.get(url);
 
-        await driver.wait(until.elementLocated(By.tagName('body')), 10000);
+        await driver.wait(until.elementLocated(By.tagName('body')), 5000);
 
 
         let pageSource = await driver.getPageSource();
@@ -43,7 +40,7 @@ async function htmlScraper(url, tokenAddress) {
         // Check if the page source contains the specific address
         if (pageSource.includes(tokenAddress)) {
           console.log('Specific Solana mint address found:', tokenAddress);
-          play.play('./notification.wav')
+          //play.play('./notification.wav')
           return true;
         } else {
           console.log('Specific Solana mint address not found.');
@@ -54,8 +51,9 @@ async function htmlScraper(url, tokenAddress) {
         await driver.quit();
       } finally {
         await driver.quit();
+        drivers.splice(drivers.indexOf(driver), 1); // Remove the driver from the tracking array
       }
       
 };
 
-module.exports = { htmlScraper };
+module.exports = { htmlScraper, createDriver };

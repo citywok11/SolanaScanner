@@ -4,7 +4,7 @@ const { TokenAccount, SPL_ACCOUNT_LAYOUT, LIQUIDITY_STATE_LAYOUT_V4} = require("
 const { OpenOrders } = require("@project-serum/serum");
 const BN = require("bn.js");
 const axios = require('axios');
-const { insertDataIntoMongoDB, addDataToArrayFieldInMongoDB } = require('./postToMongo');
+const { insertDataIntoMongoDB, addDataToArrayFieldInMongoDB, addDataToRug } = require('./postToMongo');
 const { error } = require("selenium-webdriver");
 const { MongoClient } = require('mongodb');
 
@@ -20,20 +20,6 @@ if(!historicalId) {
 }
 
   try {
-
-    var historicalPriceData = {
-      ShitCoinMetaDataId: mongoId,
-      TokenName: metaData.name,
-      HistoricalData : {
-        "Price_0": [
-          {
-            AmountOfSolInPool: null,
-            Timestamp: new Date().toISOString()
-          }
-        ]
-      }
-    };
-
       let initAmount, initialPurchase, finalAmount;
       let hasRugged = false, poolsClosed = false;
       
@@ -51,6 +37,19 @@ if(!historicalId) {
           const adjustedBaseTokenAmount = baseTokenAmount / Math.pow(10, baseDecimals);
 
           let message = "";
+
+          var historicalPriceData = {
+            ShitCoinMetaDataId: mongoId,
+            TokenName: metaData.name,
+            HistoricalData : {
+              "Price_0": [
+                {
+                  AmountOfSolInPool: adjustedBaseTokenAmount,
+                  Timestamp: new Date().toISOString()
+                }
+              ]
+            }
+          };
 
           switch (i) {
               case 0:
@@ -78,7 +77,7 @@ if(!historicalId) {
                   initialPurchase = adjustedBaseTokenAmount;
                   message = "lets pretend I bought here";
                   if (initAmount === adjustedBaseTokenAmount) {
-                      message = "pools closed sir";
+                      console.log("pools closed sir");
                       poolsClosed = true;
                   }
                   break;
@@ -89,7 +88,11 @@ if(!historicalId) {
                   break;
               default:
                   message = `Sol in pool: ${metaData.name} ${adjustedBaseTokenAmount}`;
+                  if(i < 59) {
                   await delay(1000);
+                  } else {
+                    await delay(60000)
+                  }
                   //updateCriteria, newData, arrayFieldName, dbName, collectionName
 
                   /*const HistoricalData/* = [    
@@ -99,7 +102,7 @@ if(!historicalId) {
                       Timestamp: new Date().toISOString()
                     }] */
 
-                    var priceKey = `Price_${i+1}`;
+                    var priceKey = `Price_${i}`;
 
                     historicalPriceData.HistoricalData[priceKey] = [
                       {
@@ -108,13 +111,15 @@ if(!historicalId) {
                       }
                     ];
 
-                  await addDataToArrayFieldInMongoDB(historicalId, historicalPriceData, priceKey, "HistoricalData", "ShitCoinDb", "ShitCoinHistoricalData", i);
+                   addDataToArrayFieldInMongoDB(historicalId, historicalPriceData.HistoricalData[priceKey], priceKey, "HistoricalData", "ShitCoinDb", "ShitCoinHistoricalData", i, metaData.name);
                   break;
           }
 
           if (adjustedBaseTokenAmount < 1) {
               hasRugged = true;
               message = "RUGGED";
+              console.log("RUGGED");
+              addDataToRug(historicalId, 'ShitCoinMetaData')
           }
 
           //await axios.post(webhookUrl, { content: message });

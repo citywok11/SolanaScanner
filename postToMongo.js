@@ -65,17 +65,17 @@ async function insertDataIntoMongoDBForMetadata(data, dbName, collectionName, bs
     }
 }
 
-async function addDataToArrayFieldInMongoDB(historicalId, newPriceData, index, arrayFieldName, dbName, collectionName, itemNumber) {
+async function addDataToArrayFieldInMongoDB(historicalId, newPriceData, index, arrayFieldName, dbName, collectionName, itemNumber, tokenName) {
     const db = getDb();
     const collection = db.collection(collectionName);
 
     try {
-        console.log(`Attempting to update in ${dbName}.${collectionName}`);
-
+        //console.log(`Attempting to update in ${dbName}.${collectionName}`);
+        console.log(`updating ${index} for ${tokenName}}`);
         // Perform the update operation
         const result = await collection.updateOne(
             {_id : new ObjectId(historicalId)},
-            { $push: { [index]: newPriceData } },
+            { $push: { [`HistoricalData.${index}`]: newPriceData } },
             { upsert: false } // Set to true if you want to create a new document when no document matches the criteria
         );
 
@@ -91,5 +91,26 @@ async function addDataToArrayFieldInMongoDB(historicalId, newPriceData, index, a
     }
 }
 
+async function addDataToRug(historicalId, collectionName) {
+    const db = getDb();
+    const collection = db.collection(collectionName);
 
-module.exports = { insertDataIntoMongoDB, addDataToArrayFieldInMongoDB, insertDataIntoMongoDBForMetadata };
+    try {
+        //console.log(`Attempting to update in ${dbName}.${collectionName}`);
+        console.log(`inserting rugged in db`);
+        // Perform the update operation
+        const result = await collection.updateOne(
+            {_id : new ObjectId(historicalId)},
+            { $push: { [`hasRugged`]: `true` } },
+            { upsert: true } // Set to true if you want to create a new document when no document matches the criteria
+        );
+
+        console.log(`Document updated. Matched it has been notified as being rugged`);
+        return result;
+    } catch (error) {
+        console.error(`Couldn't rug` , error);
+    }
+}
+
+
+module.exports = { insertDataIntoMongoDB, addDataToArrayFieldInMongoDB, insertDataIntoMongoDBForMetadata, addDataToRug };

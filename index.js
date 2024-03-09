@@ -3,7 +3,7 @@ const express = require('express');
 const { getTokenMetadata } = require('./metaData');
 const { fetchData } = require('./fetchdata');
 const { sendToDiscordWebhook } = require('./discordWebhook');
-const { htmlScraper} = require('./htmlScraper');
+const { htmlScraper, createDriver} = require('./htmlScraper');
 const Queue = require('bull');
 const app = express();
 const { queryLpBaseTokenAmount } = require('./getPoolData')
@@ -11,8 +11,7 @@ app.use(express.json());
 require('./logger'); // This patches console.log
 const { connectToServer } = require('./db');
 const { insertDataIntoMongoDBForMetadata } = require('./postToMongo');
-
-
+const { getPrice } = require('./getPoolData');
 
 const mintIdQueue = new Queue('mintIdQueue', process.env.REDIS_URL || 'redis://127.0.0.1:6379');
 
@@ -66,7 +65,7 @@ mintIdQueue.process(async (job) => {
             return;
         }
 
-        console.log("uri is " + uri);
+        //console.log("uri is " + uri);
 
         const metaData = await fetchData(uri, mintId, vaultId);
         if (metaData) {
@@ -75,6 +74,9 @@ mintIdQueue.process(async (job) => {
             //await queryLpBaseTokenAmount(metaData.mintId);
             if(metaData.website) {
 
+
+                const driver = await createDriver();
+
                 const telegramInUrl = metaData.website.toLowerCase().includes("https://t.me")
 
                 //await peformTransaction(metaData.mintId)
@@ -82,11 +84,11 @@ mintIdQueue.process(async (job) => {
  
               // await sendToDiscordWebhook(metaData, webhookUrl);
 
-                if(await htmlScraper(metaData.website, metaData.mintId) == true && metaData.twitter && !telegramInUrl)
-                {
+                if(await htmlScraper(driver, metaData.website, metaData.mintId) == true && metaData.twitter && !telegramInUrl)
+                {   
                     shitCoinMetaDataId = await insertDataIntoMongoDBForMetadata(metaData, "ShitCoinDb", "ShitCoinMetaData", metaData.name);
-                   await sendToDiscordWebhook(metaData, webhookUrl, vaultId, shitCoinMetaDataId);
-                }
+                    sendToDiscordWebhook(metaData, webhookUrl, vaultId, shitCoinMetaDataId);
+                } 
             }
         } else {
             console.log(`No metaData found for mintId: ${mintId}`);

@@ -2,7 +2,7 @@
 const { MongoClient } = require('mongodb');
 const connectionString = 'mongodb+srv://behnam:r8420459O@shitcoindata.at7bcxx.mongodb.net/?retryWrites=true&w=majority&appName=ShitcoinData';
 
-const client = new MongoClient(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(connectionString, { useNewUrlParser: true, useUnifiedTopology: true, maxPoolSize: 20 });
 let dbConnection;
 
 module.exports = {
