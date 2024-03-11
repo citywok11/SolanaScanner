@@ -65,6 +65,32 @@ async function insertDataIntoMongoDBForMetadata(data, dbName, collectionName, bs
     }
 }
 
+async function batchAddDataToArrayFieldInMongoDB(updatesArray, collectionName) {
+    const db = getDb();
+    const collection = db.collection(collectionName);
+
+    // Prepare the operations for bulkWrite
+    const operations = updatesArray.map(update => {
+        return {
+            updateOne: {
+                filter: { _id: new ObjectId(update.historicalId) },
+                update: { $push: { [`HistoricalData.${update.index}`]: update.newPriceData } },
+                upsert: false // Set to true if you want to create a new document when no document matches the criteria
+            }
+        };
+    });
+
+    try {
+        // Perform the bulkWrite operation
+        const result = await collection.bulkWrite(operations, { ordered: false });
+
+        console.log(`Bulk operation completed. Matched ${result.matchedCount} and modified ${result.modifiedCount}.`);
+        return result;
+    } catch (error) {
+        console.error("Error performing bulk update", error);
+    }
+}
+
 async function addDataToArrayFieldInMongoDB(historicalId, newPriceData, index, arrayFieldName, dbName, collectionName, itemNumber, tokenName) {
     const db = getDb();
     const collection = db.collection(collectionName);
