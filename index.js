@@ -12,6 +12,7 @@ require('./logger'); // This patches console.log
 const { connectToServer } = require('./db');
 const { insertDataIntoMongoDBForMetadata } = require('./postToMongo');
 const { getPrice } = require('./getPoolData');
+require('dotenv').config();
 
 const mintIdQueue = new Queue('mintIdQueue', process.env.REDIS_URL || 'redis://127.0.0.1:6379');
 
@@ -73,7 +74,7 @@ mintIdQueue.process(async (job) => {
 
             //await queryLpBaseTokenAmount(metaData.mintId);
             if(metaData.website) {
-                
+
                 const driver = await createDriver();
 
                 const telegramInUrl = metaData.website.toLowerCase().includes("https://t.me")
@@ -89,7 +90,7 @@ mintIdQueue.process(async (job) => {
                 {   
                     shitCoinMetaDataId = await insertDataIntoMongoDBForMetadata(metaData, "ShitCoinDb", "ShitCoinMetaData", metaData.name, websiteData);
                     //sendToDiscordWebhook(metaData, webhookUrl, vaultId, shitCoinMetaDataId);
-                    await getPrice(vaultId, webhookUrl, metaData, shitCoinMetaDataId, 'ShitCoinDb', 'ShitCoinHistoricalData');
+                     getPrice(vaultId, webhookUrl, metaData, shitCoinMetaDataId, 'ShitCoinDb', 'ShitCoinHistoricalData');
                 } 
             }
         } else {

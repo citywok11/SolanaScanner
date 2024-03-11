@@ -86,3 +86,4 @@ chromedriver/win64-121.0.6167.85/chromedriver-win64/chromedriver.exe
 chromedriver/win64-121.0.6167.85/chromedriver-win64/LICENSE.chromedriver
 app.log
 .gitignore
+.env
