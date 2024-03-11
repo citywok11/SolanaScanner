@@ -73,8 +73,7 @@ mintIdQueue.process(async (job) => {
 
             //await queryLpBaseTokenAmount(metaData.mintId);
             if(metaData.website) {
-
-
+                
                 const driver = await createDriver();
 
                 const telegramInUrl = metaData.website.toLowerCase().includes("https://t.me")
@@ -84,10 +83,13 @@ mintIdQueue.process(async (job) => {
  
               // await sendToDiscordWebhook(metaData, webhookUrl);
 
-                if(await htmlScraper(driver, metaData.website, metaData.mintId) == true && metaData.twitter && !telegramInUrl)
+              const websiteData = await htmlScraper(driver, metaData.website, metaData.mintId);
+
+                if(websiteData.hasFunctioningWebsite && metaData.twitter && !telegramInUrl)
                 {   
-                    shitCoinMetaDataId = await insertDataIntoMongoDBForMetadata(metaData, "ShitCoinDb", "ShitCoinMetaData", metaData.name);
-                    sendToDiscordWebhook(metaData, webhookUrl, vaultId, shitCoinMetaDataId);
+                    shitCoinMetaDataId = await insertDataIntoMongoDBForMetadata(metaData, "ShitCoinDb", "ShitCoinMetaData", metaData.name, websiteData);
+                    //sendToDiscordWebhook(metaData, webhookUrl, vaultId, shitCoinMetaDataId);
+                    await getPrice(vaultId, webhookUrl, metaData, shitCoinMetaDataId, 'ShitCoinDb', 'ShitCoinHistoricalData');
                 } 
             }
         } else {

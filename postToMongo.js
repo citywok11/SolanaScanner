@@ -34,7 +34,7 @@ async function insertDataIntoMongoDB(data, dbName, collectionName, itemNumber) {
     }
 }
 
-async function insertDataIntoMongoDBForMetadata(data, dbName, collectionName, bsonName) {
+async function insertDataIntoMongoDBForMetadata(data, dbName, collectionName, bsonName, websiteData) {
     console.log(`inserting data into db: ${dbName} collectionName: ${collectionName}`);
     //const connectionString = connectionString; //process.env.MONGO_CONNECTION_STRING; // Recommended to use environment variable
     const db = getDb(); // Replace with your database name
@@ -47,6 +47,8 @@ async function insertDataIntoMongoDBForMetadata(data, dbName, collectionName, bs
             "tokenName" : data.name,
             "metaData" : data,
             "liquidityLocked" : false,
+            "tokenIsOnWebsiteOnLaunch" : websiteData.hasTokenOnWebsite,
+            "hasFunctioningWebsite" : websiteData.hasFunctioningWebsite
         };
 
         console.log(`attempting to insert into ${dbName} and ${collectionName}`)

@@ -27,11 +27,15 @@ async function createDriver() {
 async function htmlScraper(driver, url, tokenAddress) {
     console.log("entered function");
 
+    const websiteData = {
+      hasTokenOnWebsite : null,
+      hasFunctioningWebsite : null
+    }
+
     try {
         await driver.get(url);
 
         await driver.wait(until.elementLocated(By.tagName('body')), 5000);
-
 
         let pageSource = await driver.getPageSource();
 
@@ -41,17 +45,25 @@ async function htmlScraper(driver, url, tokenAddress) {
         if (pageSource.includes(tokenAddress)) {
           console.log('Specific Solana mint address found:', tokenAddress);
           //play.play('./notification.wav')
-          return true;
+          websiteData.hasTokenOnWebsite = true
+          websiteData.hasFunctioningWebsite = true;
         } else {
           console.log('Specific Solana mint address not found.');
-          return false;
+          websiteData.hasTokenOnWebsite = false
+          websiteData.hasFunctioningWebsite = true;
         }
       } catch (error) {
+        if(error.name === 'WebDriverError' || error.name === 'InvalidArgumentError') {
+          console.log("website doesn't work")
+        } else {
         console.error('Error processing page source:', error);
-        await driver.quit();
+        }
+        websiteData.hasTokenOnWebsite = false
+        websiteData.hasFunctioningWebsite = false;
       } finally {
         await driver.quit();
         drivers.splice(drivers.indexOf(driver), 1); // Remove the driver from the tracking array
+        return websiteData;
       }
       
 };
